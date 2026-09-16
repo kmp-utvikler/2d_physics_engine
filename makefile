@@ -9,8 +9,11 @@ WFLAG=-municode -ld2d1
 $(TARGET): $(OBJ)
 	g++ $(OBJ) -o $@ $(WFLAG)
 
-build/%.o: src/%.cpp
+build/%.o: src/%.cpp | build
 	g++ $(INC) -c $< -o $@
+
+build:
+	mkdir -p build
 
 run: $(TARGET)
 	$(TARGET)
