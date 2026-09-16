@@ -14,6 +14,14 @@ class BaseWindow {
         int width;
         int height;
 
+        ID2D1Factory *pFactory = NULL;
+        ID2D1HwndRenderTarget *pRenderTarget = NULL;
+        ID2D1SolidColorBrush *pBrush = NULL;
+
+        HRESULT createGraphicsResurce();
+        void discardGraphicsResource();
+        void onPaint();
+
     public:
         BaseWindow(int w, int h) : width(w), height(h) {}
         bool create(HINSTANCE hInstance, int nCmdShow);

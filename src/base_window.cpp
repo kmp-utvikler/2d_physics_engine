@@ -30,10 +30,51 @@ bool BaseWindow::create(HINSTANCE hInstance, int nCmdShow) {
     return true;
 }
 
+HRESULT BaseWindow::createGraphicsResurce() {
+    HRESULT hr = S_OK;
+
+    if (pRenderTarget == NULL) {
+
+        hr = pFactory->CreateHwndRenderTarget(
+            D2D1::RenderTargetProperties(),
+            D2D1::HwndRenderTargetProperties(m_hwnd, D2D1::SizeU(width,height)),
+            &pRenderTarget
+        );
+
+        if (SUCCEEDED(hr)) {
+            D2D1_COLOR_F color = D2D1::ColorF(D2D1::ColorF::Black);
+            hr = pRenderTarget->CreateSolidColorBrush(color, &pBrush);
+        }
+
+    }
+
+    return hr;
+}
+
+void BaseWindow::discardGraphicsResource() {
+    if (pRenderTarget) {
+        pRenderTarget->Release();
+        pRenderTarget = nullptr;
+    }
+    if (pBrush) {
+        pBrush->Release();
+        pBrush = nullptr;
+    }
+}
+
 LRESULT BaseWindow::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
     switch (uMsg) {
+        case WM_CREATE:
+            if (FAILED(
+                D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory)
+            )) return -1;
+            return 0;
+
         case WM_DESTROY:
+            discardGraphicsResource();
+            pFactory->Release();
+            pFactory = NULL;
             PostQuitMessage(0);
             return 0;
     }
