@@ -18,7 +18,7 @@ class BaseWindow {
         ID2D1HwndRenderTarget *pRenderTarget = NULL;
         ID2D1SolidColorBrush *pBrush = NULL;
 
-        HRESULT createGraphicsResurce();
+        HRESULT createGraphicsResource();
         void discardGraphicsResource();
         void onPaint();
 

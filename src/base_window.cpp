@@ -30,7 +30,7 @@ bool BaseWindow::create(HINSTANCE hInstance, int nCmdShow) {
     return true;
 }
 
-HRESULT BaseWindow::createGraphicsResurce() {
+HRESULT BaseWindow::createGraphicsResource() {
     HRESULT hr = S_OK;
 
     if (pRenderTarget == NULL) {
@@ -42,7 +42,7 @@ HRESULT BaseWindow::createGraphicsResurce() {
         );
 
         if (SUCCEEDED(hr)) {
-            D2D1_COLOR_F color = D2D1::ColorF(D2D1::ColorF::Black);
+            D2D1_COLOR_F color = D2D1::ColorF(D2D1::ColorF::White);
             hr = pRenderTarget->CreateSolidColorBrush(color, &pBrush);
         }
 
@@ -62,9 +62,32 @@ void BaseWindow::discardGraphicsResource() {
     }
 }
 
+void BaseWindow::onPaint() {
+
+    HRESULT hr = createGraphicsResource();
+    
+    if (SUCCEEDED(hr)) {
+
+        PAINTSTRUCT ps;
+        BeginPaint(m_hwnd, &ps);
+        pRenderTarget->BeginDraw();
+
+        pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
+        pRenderTarget->FillEllipse(D2D1::Ellipse(D2D1::Point2F(100,100),50,50), pBrush);
+
+        hr = pRenderTarget->EndDraw();
+        if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET) discardGraphicsResource();
+        EndPaint(m_hwnd, &ps);
+    }
+}
+
 LRESULT BaseWindow::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
     switch (uMsg) {
+        case WM_PAINT:
+            onPaint();
+            return 0;
+
         case WM_CREATE:
             if (FAILED(
                 D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory)
